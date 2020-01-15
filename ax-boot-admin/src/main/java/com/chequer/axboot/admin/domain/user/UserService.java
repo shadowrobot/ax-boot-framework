@@ -1,5 +1,15 @@
 package com.chequer.axboot.admin.domain.user;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.chequer.axboot.admin.domain.BaseService;
 import com.chequer.axboot.admin.domain.user.auth.UserAuth;
 import com.chequer.axboot.admin.domain.user.auth.UserAuthService;
@@ -7,14 +17,7 @@ import com.chequer.axboot.admin.domain.user.role.UserRole;
 import com.chequer.axboot.admin.domain.user.role.UserRoleService;
 import com.chequer.axboot.core.parameter.RequestParams;
 import com.querydsl.core.BooleanBuilder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.List;
+import com.querydsl.core.types.Predicate;
 
 
 @Service
@@ -45,7 +48,7 @@ public class UserService extends BaseService<User, String> {
                 delete(qUserAuth).where(qUserAuth.userCd.eq(user.getUserCd())).execute();
 
                 String password = bCryptPasswordEncoder.encode(user.getUserPs());
-                User originalUser = userRepository.findOne(user.getUserCd());
+                User originalUser = userRepository.findOne(qUser.userCd.eq(user.getUserCd())).get();
 
                 if (originalUser != null) {
                     if (isNotEmpty(user.getUserPs())) {

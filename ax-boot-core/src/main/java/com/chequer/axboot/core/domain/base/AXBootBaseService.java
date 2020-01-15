@@ -1,5 +1,24 @@
 package com.chequer.axboot.core.domain.base;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.chequer.axboot.core.code.AXBootTypes;
 import com.chequer.axboot.core.db.mapper.ColumnToBeanPropertyRowMapper;
 import com.chequer.axboot.core.parameter.RequestParams;
@@ -9,22 +28,6 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAUpdateClause;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 
 public abstract class AXBootBaseService<T, ID extends Serializable> extends AXBootFilterService<T> {
@@ -52,11 +55,12 @@ public abstract class AXBootBaseService<T, ID extends Serializable> extends AXBo
     }
 
     public List<T> findAll(Iterable<ID> iterable) {
-        return repository.findAll(iterable);
+        return repository.findAllById(iterable);
     }
 
     public T findOne(Predicate predicate) {
-        return repository.findOne(predicate);
+    		Optional<T> optional = repository.findOne(predicate);
+        return optional.get();
     }
 
     public List<T> findAll(Predicate predicate) {
@@ -155,11 +159,12 @@ public abstract class AXBootBaseService<T, ID extends Serializable> extends AXBo
     }
 
     public T findOne(ID var1) {
-        return repository.findOne(var1);
+    	Optional<T> optional = repository.findById(var1);
+      return optional.get();
     }
 
     public boolean exists(ID var1) {
-        return repository.exists(var1);
+        return repository.existsById(var1);
     }
 
     public long count() {
@@ -168,7 +173,7 @@ public abstract class AXBootBaseService<T, ID extends Serializable> extends AXBo
 
     @Transactional
     public void delete(ID var1) {
-        repository.delete(var1);
+        repository.deleteById(var1);
     }
 
     @Transactional
@@ -178,7 +183,7 @@ public abstract class AXBootBaseService<T, ID extends Serializable> extends AXBo
 
     @Transactional
     public void delete(Iterable<? extends T> var1) {
-        repository.delete(var1);
+        repository.deleteAll(var1);
     }
 
     @Transactional

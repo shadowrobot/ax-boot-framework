@@ -1,27 +1,34 @@
 package com.chequer.axboot.core.db.schema;
 
-import com.chequer.axboot.core.annotations.ColumnPosition;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.boot.spi.MetadataImplementor;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
-import org.springframework.boot.orm.jpa.hibernate.SpringNamingStrategy;
-import org.springframework.stereotype.Component;
+import static java.util.stream.Collectors.toList;
 
-import javax.persistence.Column;
-import javax.persistence.Transient;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.StringJoiner;
 
-import static java.util.stream.Collectors.toList;
+import javax.persistence.Column;
+import javax.persistence.Transient;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.schema.TargetType;
+import org.springframework.stereotype.Component;
+
+import com.chequer.axboot.core.annotations.ColumnPosition;
 
 @Component
 public class SchemaGenerator extends SchemaGeneratorBase {
 
     public void createSchema() throws IOException, ClassNotFoundException {
-        SchemaExport export = new SchemaExport((MetadataImplementor) getMetaData());
+        SchemaExport export = new SchemaExport();
+        
         String scriptOutputPath = System.getProperty("java.io.tmpdir") + "/schema.sql";
         /*
         SchemaExport schemaExport = new SchemaExport();
@@ -31,7 +38,7 @@ public class SchemaGenerator extends SchemaGeneratorBase {
         schemaExport.createOnly(targetTypes, getMetaData());
         */
         export.setOutputFile(scriptOutputPath);
-        export.create(true, true);
+        export.create(EnumSet.of(TargetType.SCRIPT,TargetType.DATABASE), getMetaData());
 
         List<String> DDLs = IOUtils.readLines(new FileInputStream(scriptOutputPath), "UTF-8");
         List<String> convertedDDLs = new ArrayList<>();
@@ -109,7 +116,7 @@ public class SchemaGenerator extends SchemaGeneratorBase {
 
     public void setPosition(Field field, List<ColumnDefinition> columnDefinitions) {
         String name = field.getName();
-        String columnName;
+        String columnName="";
         int position = Integer.MAX_VALUE - 10;
 
         if (field.getAnnotation(Transient.class) == null) {
@@ -119,7 +126,7 @@ public class SchemaGenerator extends SchemaGeneratorBase {
             if (column != null && !"".equals(column.name())) {
                 columnName = column.name();
             } else {
-                columnName = new SpringNamingStrategy().columnName(name);
+                //columnName = new SpringPhysicalNamingStrategy().toPhysicalColumnName(name, jdbcEnvironment);
             }
 
             if (columnPosition != null && columnPosition.value() > 0) {

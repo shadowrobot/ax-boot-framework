@@ -6,6 +6,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.boot.registry.classloading.internal.ClassLoaderServiceImpl;
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
 import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.SerializationException;
 import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
@@ -40,7 +41,7 @@ public class MySQLJSONUserType implements ParameterizedType, UserType {
     }
 
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+    public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
         try {
             if (resultSet.getBytes(names[0]) != null) {
                 final String json = new String(resultSet.getBytes(names[0]), "UTF-8");
@@ -53,7 +54,7 @@ public class MySQLJSONUserType implements ParameterizedType, UserType {
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
         try {
             final String json = value == null ? null : objectMapper.writeValueAsString(value);
             st.setObject(index, json);
@@ -141,4 +142,5 @@ public class MySQLJSONUserType implements ParameterizedType, UserType {
     public Object replace(Object original, Object target, Object owner) throws HibernateException {
         return deepCopy(original);
     }
+
 }

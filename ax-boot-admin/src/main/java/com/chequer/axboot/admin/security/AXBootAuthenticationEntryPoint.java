@@ -18,7 +18,7 @@ import java.io.IOException;
 public class AXBootAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException{
         CookieUtils.deleteCookie(request, response, GlobalConstants.ADMIN_AUTH_TOKEN_KEY);
         RequestUtils requestUtils = RequestUtils.of(request);
 

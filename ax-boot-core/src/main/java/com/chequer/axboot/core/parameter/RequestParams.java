@@ -110,7 +110,7 @@ public class RequestParams<T> {
         int page = getInt("pageNumber", 0);
         int size = getInt("pageSize", Integer.MAX_VALUE);
 
-        return new PageRequest(page, size, getSort());
+        return PageRequest.of(page, size, getSort());
     }
 
     public void addSort(String value, Sort.Direction direction) {
@@ -135,11 +135,11 @@ public class RequestParams<T> {
                 orders.add(new Sort.Order(Sort.Direction.fromString(sortValues[i + 1]), sortValues[i]));
             }
 
-            return new Sort(orders);
+            return Sort.by(orders);
         }
 
         if (ArrayUtils.isNotEmpty(sortOrders)) {
-            return new Sort(sortOrders);
+            return Sort.by(sortOrders);
         }
 
         return null;
